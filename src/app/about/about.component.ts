@@ -1,5 +1,7 @@
+import { map } from 'rxjs/operators';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { interval, noop, Observable } from 'rxjs';
+import { createHttpObservable } from '../common/util';
 
 @Component({
   selector: 'about',
@@ -12,24 +14,18 @@ export class AboutComponent implements OnInit {
 
   ngOnInit() {
  /** The below is the example of the creation of Observable using promise and following the Observable Contract */
-    const http$ = new Observable(observer => {
-      fetch('/api/courses')
-      .then( response => {
-        return response.json();
-      }).then( body => {
-        observer.next(body);
-        observer.complete();
+    const http$ = createHttpObservable('/api/courses');
 
-      }).catch( err => {
-        observer.error(err);
-      })
-    });
+    const courses$ = http$.pipe(
+      map(res => Object.values( res['payload']))
+    );
 
-    http$.subscribe(
+    courses$.subscribe(
       courses => console.log(courses),
       noop,
       () => console.log('completed')
     );
   }
+
 
 }
