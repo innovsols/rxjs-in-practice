@@ -23,8 +23,12 @@ export class HomeComponent implements OnInit {
 
 const http$ = createHttpObservable('/api/courses');
 
+/** shareReplay Operator helps to ensure that the data stream fetched from backend is reused, rather than fetching the data
+ * with each observable using the data stream, So it Optimizes the backend calls.
+ */
 const courses$ = http$.pipe(
-  map(res => <Course[]>Object.values( res['payload']))
+  map(res => <Course[]>Object.values( res['payload'])),
+  shareReplay()
 );
 
 this.beginnerCourses$ = courses$.pipe(
