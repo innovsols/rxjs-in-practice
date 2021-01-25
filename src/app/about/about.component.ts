@@ -13,18 +13,7 @@ export class AboutComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
- /** The below is the example of the creation of Observable using promise and following the Observable Contract */
-    const http$ = createHttpObservable('/api/courses');
-
-    const courses$ = http$.pipe(
-      map(res => Object.values( res['payload']))
-    );
-
-    courses$.subscribe(
-      courses => console.log(courses),
-      noop,
-      () => console.log('completed')
-    );
+ 
   }
 
 
