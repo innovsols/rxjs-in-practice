@@ -15,6 +15,7 @@ import {
 } from 'rxjs/operators';
 import {merge, fromEvent, Observable, concat} from 'rxjs';
 import {Lesson} from '../model/lesson';
+import { createHttpObservable } from '../common/util';
 
 
 @Component({
@@ -24,7 +25,7 @@ import {Lesson} from '../model/lesson';
 })
 export class CourseComponent implements OnInit, AfterViewInit {
 
-
+    courseId: string;
     course$: Observable<Course>;
     lessons$: Observable<Lesson[]>;
 
@@ -38,7 +39,10 @@ export class CourseComponent implements OnInit, AfterViewInit {
 
     ngOnInit() {
 
-        const courseId = this.route.snapshot.params['id'];
+      this.courseId = this.route.snapshot.params['id'];
+
+        this.course$ = createHttpObservable(`/api/courses/${this.courseId}`).pipe( tap(console.log));
+
 
 
 
@@ -46,11 +50,24 @@ export class CourseComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
 
+      const searchLessons$ =fromEvent<any>(this.input.nativeElement, 'keyup').pipe(
+        map(event => event.target.value),
+        debounceTime(400),  // This Operator ensure that stable values emited are considered every 400 msec
+        distinctUntilChanged(), // this ensure duplicate values are not considered
+        switchMap(search => this.loadLessons(search))
+      );
 
-
-
+      const initialLessons$ = this.loadLessons();
+      // tslint:disable-next-line: deprecation
+      this.lessons$ = concat(initialLessons$, searchLessons$);
     }
 
+    loadLessons(search = '') {
+
+     return createHttpObservable(`/api/lessons?courseId=${this.courseId}&pageSize=100&filter=${search}`).pipe(
+        map(res => res['payload'])
+      );
+    }
 
 
 
