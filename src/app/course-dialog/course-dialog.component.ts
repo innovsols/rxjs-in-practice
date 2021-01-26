@@ -15,7 +15,7 @@ import {fromPromise} from 'rxjs/internal-compatibility';
 export class CourseDialogComponent implements OnInit, AfterViewInit {
 
     form: FormGroup;
-    course:Course;
+    course: Course;
 
     @ViewChild('saveButton', { static: true }) saveButton: ElementRef;
 
@@ -38,8 +38,14 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
+      /** The concatMap operator waits for previous values emited to be completed, once its completed and operation is performed
+       * on the same, new set of values are emitted and sent.
+       */
 
-
+      this.form.valueChanges.pipe(
+        filter(() => this.form.valid),
+        concatMap(changes => this.saveCourse(changes))
+      ).subscribe();
 
     }
 
@@ -50,7 +56,15 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
 
     }
 
-
+    saveCourse(changes) {
+      return fromPromise( fetch(`/api/courses/${this.course.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(changes),
+        headers: {
+          'content-type': 'application/json'
+        }
+      }));
+    }
 
     close() {
         this.dialogRef.close();
