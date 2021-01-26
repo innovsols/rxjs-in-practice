@@ -27,14 +27,9 @@ const http$ = createHttpObservable('/api/courses');
  * with each observable using the data stream, So it Optimizes the backend calls.
  */
 const courses$ = http$.pipe(
-  catchError(err => { // simulation of error The catchError, Finalize combination can be used multiple times on observable chain
-    console.log('Error occurred', err);
-    return throwError(err);
-  }),
-  finalize( () => console.log('Finalize Executed')),
   map(res => <Course[]>Object.values( res['payload'])),
-  shareReplay()
-
+  shareReplay(),
+  retryWhen(errors => errors.pipe(delayWhen(() => timer(2000)))) // Eachtime there is error wait for 2 secs and retry
 );
 
 this.beginnerCourses$ = courses$.pipe(
