@@ -50,7 +50,7 @@ export class CourseComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
 
-      const searchLessons$ =fromEvent<any>(this.input.nativeElement, 'keyup').pipe(
+    /* const searchLessons$ =fromEvent<any>(this.input.nativeElement, 'keyup').pipe(
         map(event => event.target.value),
         debounceTime(400),  // This Operator ensure that stable values emited are considered every 400 msec
         distinctUntilChanged(), // this ensure duplicate values are not considered
@@ -59,7 +59,16 @@ export class CourseComponent implements OnInit, AfterViewInit {
 
       const initialLessons$ = this.loadLessons();
       // tslint:disable-next-line: deprecation
-      this.lessons$ = concat(initialLessons$, searchLessons$);
+      this.lessons$ = concat(initialLessons$, searchLessons$);*/
+
+      // Below is the same implementation using StartWith Operator with simplified refactoring of code
+
+      this.lessons$ = fromEvent<any>(this.input.nativeElement, 'keyup').pipe(
+        map(event => event.target.value),
+        startWith(''),
+        debounceTime(800),  // This Operator ensure that stable values emited are considered every 400 msec
+        distinctUntilChanged(), // this ensure duplicate values are not considered
+        switchMap(search => this.loadLessons(search)));
     }
 
     loadLessons(search = '') {
