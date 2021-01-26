@@ -38,12 +38,13 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
-      /** The MergeMap operator consumes values as it gets from the stream in parallel, continue to merge values from different sources.
+      /** The concatMap operator waits for previous values emited to be completed, once its completed and operation is performed
+       * on the same, new set of values are emitted and sent.
        */
 
       this.form.valueChanges.pipe(
         filter(() => this.form.valid),
-        mergeMap(changes => this.saveCourse(changes))
+        concatMap(changes => this.saveCourse(changes))
       ).subscribe();
 
     }
@@ -51,8 +52,13 @@ export class CourseDialogComponent implements OnInit, AfterViewInit {
 
 
     ngAfterViewInit() {
+      /** Exhaust Map as it continues to perform operation, ignores the values emitted by stream until the current operation
+       * is in process. 
+       */
 
-
+      fromEvent(this.saveButton.nativeElement, 'click').pipe(
+        exhaustMap(() => this.saveCourse(this.form.value))
+      );
     }
 
     saveCourse(changes) {
