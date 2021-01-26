@@ -1,6 +1,6 @@
 import {  map } from 'rxjs/operators';
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { concat, interval, noop, Observable, of } from 'rxjs';
+import { concat, interval, noop, Observable, of, merge } from 'rxjs';
 import { createHttpObservable } from '../common/util';
 
 @Component({
@@ -14,17 +14,14 @@ export class AboutComponent implements OnInit {
 
   ngOnInit() {
 
-    /** Below is the example of concat observable, which sequently concates the streams of data which it supposed to contact,
-     * this means that once the source1 complete the emition of data, the further sources of data are emitted and concatenated.
+    /** Below is the example of merge operator, which merges the streams of data which it supposed to merge,
+     * the merge continues untill all the values in the to be merged observable are completed.
      */
-    const source1$ = of(1, 2, 3);
+    const source1$ = interval(1000);
 
-    const source2$ = of(4, 5, 6);
+    const source2$ = source1$.pipe(map(val => 10* val));
 
-    const source3$ = of(4, 5, 6);
-
-
-    const result$ = concat(source1$, source2$, source3$);
+    const result$ = merge(source1$, source2$);
 
     result$.subscribe(console.log);
 
