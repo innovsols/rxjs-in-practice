@@ -14,16 +14,12 @@ export class AboutComponent implements OnInit {
 
   ngOnInit() {
 
-    /** Below is the example of merge operator, which merges the streams of data which it supposed to merge,
-     * the merge continues untill all the values in the to be merged observable are completed.
-     */
-    const source1$ = interval(1000);
+    // Below is the example of trigger unsubcribe on custom observable, please refer revised function used in below example
+    const http$ = createHttpObservable('/api/courses');
 
-    const source2$ = source1$.pipe(map(val => 10* val));
+    const sub = http$.subscribe(console.log);
 
-    const result$ = merge(source1$, source2$);
-
-    result$.subscribe(console.log);
+    setTimeout(() => sub.unsubscribe(), 0);
 
   }
 
