@@ -6,15 +6,20 @@ export function createHttpObservable(url: string) {
     const controller = new AbortController();
     const signal = controller.signal;
     fetch(url)
-    .then( response => {
-      return response.json();
-    }).then( body => {
-      observer.next(body);
-      observer.complete();
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          observer.error('Request Failed with Status Code : ' + response.status);
+        }
 
-    }).catch( err => {
-      observer.error(err);
-    });
+      }).then(body => {
+        observer.next(body);
+        observer.complete();
+
+      }).catch(err => {
+        observer.error(err);
+      });
 
     return () => controller.abort();
   });
